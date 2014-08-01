@@ -6,6 +6,10 @@ The idea is to dynamically link custom effects over the inverted color mode.
 	$ make
 	$ LD_PRELOAD=./contrastinator.so evince /tmp/paper.pdf
 
+# Why?
+
+It was created, because accessibility is important and should not be neglected.
+
 # Who?
 
 It was written by Sampsa "Tuplanolla" Kiiskinen.
