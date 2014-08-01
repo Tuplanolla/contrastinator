@@ -1,0 +1,3 @@
+This is a hack to improve the readability of thin fonts in Evince.
+Its working principle involves abusing the dynamic library linker.
+It was written by Sampsa "Tuplanolla" Kiiskinen on 2014-08-01.
