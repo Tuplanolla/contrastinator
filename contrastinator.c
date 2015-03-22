@@ -1,24 +1,33 @@
 #include <cairo.h>
 #include <dlfcn.h>
+#include <gtk/gtk.h>
 #include <stddef.h>
 #include <stdio.h>
 
-static void (* dlev)(cairo_surface_t*) = NULL;
+static void (* dlev_surface)(cairo_surface_t*) = NULL;
+static void (* dlev_pixbuf)(GdkPixbuf*) = NULL;
 
 static void init(void) {
-	dlev = dlsym(RTLD_NEXT,
+	dlev_surface = dlsym(RTLD_NEXT,
 			/* libevdocument3.so: */ "ev_document_misc_invert_surface");
-	if (dlev == NULL) {
+	if (dlev_surface == NULL) {
+		fputs(dlerror(), stderr);
+		fputc('\n', stderr);
+	}
+
+	dlev_pixbuf = dlsym(RTLD_NEXT,
+			/* libevdocument3.so: */ "ev_document_misc_invert_pixbuf");
+	if (dlev_pixbuf == NULL) {
 		fputs(dlerror(), stderr);
 		fputc('\n', stderr);
 	}
 }
 
 void ev_document_misc_invert_surface(cairo_surface_t* const surface) {
-	if (dlev == NULL)
+	if (dlev_surface == NULL)
 		init();
 
-	/* dlev(surface); */ {
+	/* dlev_surface(surface); */ {
 		cairo_t* context;
 
 		context = cairo_create(surface);
@@ -32,5 +41,50 @@ void ev_document_misc_invert_surface(cairo_surface_t* const surface) {
 		cairo_paint(context); /* This is the enhancement. */
 
 		cairo_destroy(context);
+	}
+}
+
+void ev_document_misc_invert_pixbuf(GdkPixbuf* const pixbuf) {
+	if (dlev_pixbuf == NULL)
+		init();
+
+	/* dlev_pixbuf(pixbuf); */ {
+		guint n_channels;
+		guchar* data;
+		guint rowstride;
+		guint width, height;
+		guint x, y;
+
+		n_channels = gdk_pixbuf_get_n_channels(pixbuf);
+		g_assert(gdk_pixbuf_get_colorspace(pixbuf) == GDK_COLORSPACE_RGB);
+		g_assert(gdk_pixbuf_get_bits_per_sample(pixbuf) == 8);
+
+		data = gdk_pixbuf_get_pixels(pixbuf);
+
+		rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+
+		width = gdk_pixbuf_get_width(pixbuf);
+		height = gdk_pixbuf_get_height(pixbuf);
+		for (x = 0;
+				x < width;
+				++x) {
+			for (y = 0;
+					y < height;
+					++y) {
+				guchar* p;
+
+				p = data + x * n_channels + y * rowstride;
+
+				/*
+				p[0] = 255 - p[0];
+				p[1] = 255 - p[1];
+				p[2] = 255 - p[2];
+				*/ /* This is the inversion. */
+
+				p[0] = 255 - p[0] * p[0] / 255;
+				p[1] = 255 - p[1] * p[1] / 255;
+				p[2] = 255 - p[2] * p[2] / 255; /* This is the enhancement. */
+			}
+		}
 	}
 }

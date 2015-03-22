@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=`pkg-config --cflags --libs cairo` -D_GNU_SOURCE -Wall -Wextra
-LDLIBS=-lcairo -ldl
+CFLAGS=`pkg-config --cflags cairo gtk+-2.0` -D_GNU_SOURCE -Wall -Wextra
+LDLIBS=`pkg-config --libs cairo gtk+-2.0` -ldl
 
 all: contrastinator.so
 
