@@ -4,30 +4,32 @@
 #include <stddef.h>
 #include <stdio.h>
 
-static void (* dlev_surface)(cairo_surface_t*) = NULL;
-static void (* dlev_pixbuf)(GdkPixbuf*) = NULL;
+static void (* invert_surface)(cairo_surface_t*) = NULL;
+static void (* invert_pixbuf)(GdkPixbuf*) = NULL;
 
-static void init(void) {
-	dlev_surface = dlsym(RTLD_NEXT,
+static void init_surface(void) {
+	invert_surface = dlsym(RTLD_NEXT,
 			/* libevdocument3.so: */ "ev_document_misc_invert_surface");
-	if (dlev_surface == NULL) {
+	if (invert_surface == NULL) {
 		fputs(dlerror(), stderr);
 		fputc('\n', stderr);
 	}
+}
 
-	dlev_pixbuf = dlsym(RTLD_NEXT,
+static void init_pixbuf(void) {
+	invert_pixbuf = dlsym(RTLD_NEXT,
 			/* libevdocument3.so: */ "ev_document_misc_invert_pixbuf");
-	if (dlev_pixbuf == NULL) {
+	if (invert_pixbuf == NULL) {
 		fputs(dlerror(), stderr);
 		fputc('\n', stderr);
 	}
 }
 
 void ev_document_misc_invert_surface(cairo_surface_t* const surface) {
-	if (dlev_surface == NULL)
-		init();
+	if (invert_surface == NULL)
+		init_surface();
 
-	/* dlev_surface(surface); */ {
+	/* invert_surface(surface); */ {
 		cairo_t* context;
 
 		context = cairo_create(surface);
@@ -45,10 +47,10 @@ void ev_document_misc_invert_surface(cairo_surface_t* const surface) {
 }
 
 void ev_document_misc_invert_pixbuf(GdkPixbuf* const pixbuf) {
-	if (dlev_pixbuf == NULL)
-		init();
+	if (invert_pixbuf == NULL)
+		init_pixbuf();
 
-	/* dlev_pixbuf(pixbuf); */ {
+	/* invert_pixbuf(pixbuf); */ {
 		guint n_channels;
 		guchar* data;
 		guint rowstride;

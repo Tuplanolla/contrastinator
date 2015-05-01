@@ -65,3 +65,8 @@ Its development was trivial.
 		Inferior 1 [process 1337] will be killed.
 
 	Quit anyway? (y or n) y
+
+# Really?
+
+It does not work with GTK+ 3 or AppArmor.
+One day it might, but I would not count on it.
