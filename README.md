@@ -68,5 +68,5 @@ Its development was trivial.
 
 # Really?
 
-It does not work with GTK+ 3 or AppArmor.
-One day it might, but I would not count on it.
+It does not work with AppArmor, because
+it prevents linking additional libraries on the fly.
